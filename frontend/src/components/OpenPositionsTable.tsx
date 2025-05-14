@@ -58,8 +58,7 @@ const OpenPositionsTable: React.FC = () => {
         setError(err.message)
       })
   }, [])
- d1f9469 (Debug: log URL and API Key usage for positions fetch)
-
+ 
   if (error) {
     return (
       <div className="text-red-500">
