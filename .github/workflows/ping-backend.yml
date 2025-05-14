@@ -1,0 +1,14 @@
+name: Ping Render API
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # co 5 minut UTC
+  workflow_dispatch:       # pozwala ręcznie uruchomić
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render FastAPI
+        run: |
+          curl -s -o /dev/null -w "%{http_code}\n" https://crypto-trading-bot-5ecx.onrender.com/status
