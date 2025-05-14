@@ -15,24 +15,24 @@ const OpenPositionsTable: React.FC = () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
     const apiKey = process.env.NEXT_PUBLIC_API_KEY
 
-    if (!apiUrl || !apiKey) {
-      console.error('❌ Missing API URL or API Key in environment variables')
-      setError('Missing API configuration')
-      return
-    }
+    console.log('[DEBUG] API_URL:', apiUrl)
+    console.log('[DEBUG] API_KEY:', apiKey)
 
     fetch(`${apiUrl}/positions`, {
       headers: {
-        'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || ''
+        'X-API-Key': apiKey || ''
       }
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch positions')
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
         return res.json()
       })
-      .then((data) => setPositions(data))
+      .then((data) => {
+        console.log('[DEBUG] positions:', data)
+        setPositions(data)
+      })
       .catch((err) => {
-        console.error('❌ FETCH ERROR:', err)
+        console.error('[DEBUG] fetch error:', err)
         setError(err.message)
       })
   }, [])
