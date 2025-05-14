@@ -1,14 +1,20 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import APIKeyHeader
+from fastapi.middleware.cors import CORSMiddleware
 from executor import open_positions
 from selector import get_top_symbols
-from dotenv import load_dotenv
 import os
 
-# Load .env file
-load_dotenv()
-
 app = FastAPI()
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # możesz wpisać konkretny adres frontendowy, np. ["https://crypto-bot-seven-psi.vercel.app"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- API Key Security ---
 API_KEY = os.getenv("API_KEY")
