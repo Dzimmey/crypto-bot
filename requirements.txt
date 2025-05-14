@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pandas
+ta
+python-binance
+python-dotenv
