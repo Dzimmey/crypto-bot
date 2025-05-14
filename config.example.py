@@ -1,3 +1,23 @@
 ### config.example.py
 API_KEY = "your_api_key_here"
 API_SECRET = "your_api_secret_here"
+
+BASE_URL = "https://api.binance.com"
+
+TRADE_SYMBOLS = ["BTCUSDT", "ETHUSDT"]
+TRADE_QUANTITY_USD = 50
+
+RSI_PERIOD = 14
+RSI_BUY_THRESHOLD = 30
+RSI_SELL_THRESHOLD = 70
+
+MACD_FAST = 12
+MACD_SLOW = 26
+MACD_SIGNAL = 9
+
+INTERVAL = "1h"
+CANDLE_LIMIT = 100
+TOP_SYMBOLS_LIMIT = 5
+
+SL_PCT = 0.05
+TP_PCT = 0.10

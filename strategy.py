@@ -1,4 +1,4 @@
-from config import RSI_BUY_THRESHOLD, RSI_SELL_THRESHOLD
+from config_example import RSI_BUY_THRESHOLD, RSI_SELL_THRESHOLD
 
 def decide(df):
     last = df.iloc[-1]
