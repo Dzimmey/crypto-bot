@@ -1,30 +1,42 @@
-### main.py
-import time
-from fetcher import fetch_ohlcv
-from indicators import add_indicators
-from strategy import decide
-from executor import execute_trade
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader
+from executor import open_positions
 from selector import get_top_symbols
+import os
 
-TRADE_SYMBOLS = get_top_symbols()  # inicjalizacja
-last_selection_time = time.time()
+app = FastAPI()
 
-if __name__ == "__main__":
-    print("Crypto Trading Bot Started")
+# --- CORS middleware (frontend <-> backend) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # możesz to zmienić na konkretny adres np. ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    while True:
-        now = time.time()
-        if now - last_selection_time > 3600:  # co godzinę
-            TRADE_SYMBOLS = get_top_symbols()
-            last_selection_time = now
-            print(f"[SELECTOR] Updated trading symbols: {TRADE_SYMBOLS}")
+# --- API Key Security ---
+API_KEY = os.getenv("API_KEY")
+api_key_header = APIKeyHeader(name="X-API-Key")
 
-        for symbol in TRADE_SYMBOLS:
-            df = fetch_ohlcv(symbol)
-            if df is not None:
-                df = add_indicators(df)
-                action = decide(df)
-                print(f"{symbol}: RSI={df['rsi'].iloc[-1]:.2f}, MACD={df['macd'].iloc[-1]:.4f} → Action: {action}")
-                execute_trade(symbol, action)
+def verify_api_key(key: str = Depends(api_key_header)):
+    if key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API Key")
 
-        time.sleep(300)
+# --- Routes ---
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Crypto Trading Bot API"}
+
+@app.get("/status")
+def get_status():
+    return {"status": "bot online"}
+
+@app.get("/positions", dependencies=[Depends(verify_api_key)])
+def get_open_positions():
+    return open_positions
+
+@app.get("/symbols", dependencies=[Depends(verify_api_key)])
+def get_symbols():
+    return get_top_symbols()
