@@ -1,6 +1,11 @@
 ### selector.py
 from binance.client import Client
-from config_example import API_KEY, API_SECRET, TOP_SYMBOLS_LIMIT
+import os
+
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
+TOP_SYMBOLS_LIMIT = int(os.getenv("TOP_SYMBOLS_LIMIT", 5))
+
 
 client = Client(API_KEY, API_SECRET)
 
