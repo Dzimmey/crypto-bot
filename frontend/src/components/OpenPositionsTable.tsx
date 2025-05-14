@@ -23,7 +23,7 @@ const OpenPositionsTable: React.FC = () => {
 
     fetch(`${apiUrl}/positions`, {
       headers: {
-        'X-API-Key': apiKey
+        'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || ''
       }
     })
       .then((res) => {
