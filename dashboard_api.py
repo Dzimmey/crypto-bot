@@ -16,3 +16,7 @@ def get_open_positions():
 @app.get("/symbols")
 def get_symbols():
     return get_top_symbols()
+
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Crypto Trading Bot API"}
