@@ -5,10 +5,9 @@ from selector import get_top_symbols
 from dotenv import load_dotenv
 import os
 
-# --- Load .env variables ---
+# Load .env file
 load_dotenv()
 
-# --- API Init ---
 app = FastAPI()
 
 # --- API Key Security ---
