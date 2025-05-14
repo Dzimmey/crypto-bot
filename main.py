@@ -18,7 +18,7 @@ app.add_middleware(
 
 # --- API Key Security ---
 API_KEY = os.getenv("API_KEY")
-api_key_header = APIKeyHeader(name="X-API-Key")
+api_key_header = APIKeyHeader(name="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")
 
 def verify_api_key(key: str = Depends(api_key_header)):
     if key != API_KEY:
