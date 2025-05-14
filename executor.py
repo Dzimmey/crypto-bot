@@ -1,5 +1,9 @@
 from binance.client import Client
-from config import API_KEY, API_SECRET, TRADE_QUANTITY_USD
+import os
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
+TRADE_QUANTITY_USD = float(os.getenv("TRADE_QUANTITY_USD", 100))
+
 
 client = Client(API_KEY, API_SECRET)
 open_positions = {}
