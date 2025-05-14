@@ -2,7 +2,7 @@ name: Ping Render API
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # co 5 minut
+    - cron: '*/1 * * * *'  # co 1 minut
   workflow_dispatch:
 
 jobs:
