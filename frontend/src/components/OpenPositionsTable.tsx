@@ -12,18 +12,22 @@ const OpenPositionsTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/positions`, {
-      headers: {
-        'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || ''
-      }
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/positions`, {
+    headers: {
+      'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || ''
+    }
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error('Failed to fetch positions')
+      return res.json()
     })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch positions')
-        return res.json()
-      })
-      .then((data) => setPositions(data))
-      .catch((err) => setError(err.message))
-  }, [])
+    .then((data) => setPositions(data))
+    .catch((err) => {
+      console.error('FETCH ERROR', err)
+      setError(err.message)
+    })
+}, [])
+
 
   if (error) return <div className="text-red-500">Error: {error}</div>
 
