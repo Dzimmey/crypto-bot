@@ -10,8 +10,10 @@ type Position = {
 const OpenPositionsTable: React.FC = () => {
   const [positions, setPositions] = useState<Position[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [debug, setDebug] = useState({ url: '', apiKey: '' })
 
   useEffect(() => {
+ HEAD
   fetch(`${process.env.NEXT_PUBLIC_API_URL}/positions`, {
     headers: {
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || ''
@@ -29,7 +31,44 @@ const OpenPositionsTable: React.FC = () => {
 }, [])
 
 
-  if (error) return <div className="text-red-500">Error: {error}</div>
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const apiKey = process.env.NEXT_PUBLIC_API_KEY || ''
+    const fullUrl = `${apiUrl}/positions`
+
+    console.log('🔍 Fetching from:', fullUrl)
+    console.log('🔐 Using API Key:', apiKey)
+
+    setDebug({ url: fullUrl, apiKey })
+
+    fetch(fullUrl, {
+      headers: {
+        'X-API-Key': apiKey
+      }
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to fetch positions (${res.status})`)
+        return res.json()
+      })
+      .then((data) => {
+        console.log('✅ Data received:', data)
+        setPositions(data)
+      })
+      .catch((err) => {
+        console.error('❌ FETCH ERROR:', err)
+        setError(err.message)
+      })
+  }, [])
+ d1f9469 (Debug: log URL and API Key usage for positions fetch)
+
+  if (error) {
+    return (
+      <div className="text-red-500">
+        <p><strong>Error:</strong> {error}</p>
+        <p><strong>URL:</strong> {debug.url}</p>
+        <p><strong>API Key:</strong> {debug.apiKey ? 'Provided' : 'Missing'}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="p-4">
