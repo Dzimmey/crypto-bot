@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from executor import open_positions
 from selector import get_top_symbols
@@ -9,7 +9,7 @@ app = FastAPI()
 # --- CORS Middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # lub np. ["https://crypto-bot-seven-psi.vercel.app"]
+    allow_origins=["*"],  # lub wpisz konkretniejszy: ["https://crypto-bot-seven-psi.vercel.app"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,10 +31,18 @@ def root():
 def get_status():
     return {"status": "bot online"}
 
+@app.options("/positions")
+def options_positions():
+    return Response(status_code=204)
+
 @app.get("/positions")
 def get_open_positions(request: Request):
     check_api_key(request)
     return open_positions
+
+@app.options("/symbols")
+def options_symbols():
+    return Response(status_code=204)
 
 @app.get("/symbols")
 def get_symbols(request: Request):
