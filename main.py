@@ -8,7 +8,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # W produkcji możesz wpisać swoją domenę Vercel!
+    allow_origins=["*"],  # (lub ["https://crypto-bot-seven-psi.vercel.app"] na produkcji)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -17,13 +17,23 @@ app.add_middleware(
 API_KEY = os.getenv("API_KEY")
 
 @app.api_route("/positions", methods=["GET", "OPTIONS"])
-async def get_positions(request: Request):
+async def positions(request: Request):
+    # Obsługa preflight (CORS)
     if request.method == "OPTIONS":
         return Response(status_code=200)
     api_key = request.headers.get("X-API-Key")
     if not api_key or api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
     return open_positions
+
+@app.api_route("/symbols", methods=["GET", "OPTIONS"])
+async def symbols(request: Request):
+    if request.method == "OPTIONS":
+        return Response(status_code=200)
+    api_key = request.headers.get("X-API-Key")
+    if not api_key or api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API Key")
+    return get_top_symbols()
 
 @app.get("/")
 def root():
@@ -32,12 +42,3 @@ def root():
 @app.get("/status")
 def get_status():
     return {"status": "bot online"}
-
-@app.api_route("/symbols", methods=["GET", "OPTIONS"])
-async def get_symbols(request: Request):
-    if request.method == "OPTIONS":
-        return Response(status_code=200)
-    api_key = request.headers.get("X-API-Key")
-    if not api_key or api_key != API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
-    return get_top_symbols()
