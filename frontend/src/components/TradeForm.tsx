@@ -8,7 +8,7 @@ const TradeForm: React.FC = () => {
   const [result, setResult] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setResult(null)
     setError(null)
@@ -25,10 +25,11 @@ const TradeForm: React.FC = () => {
       const data = await res.json()
       setResult(`✅ Trade sent: ${data.symbol} ${data.action} (${data.quantity})`)
     } catch (err) {
-      // Typujemy err jako Error, ale może być też unknown, stąd as Error
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to send trade'
-      setError(errorMessage)
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to send trade')
+      } else {
+        setError('Failed to send trade')
+      }
     }
   }
 
@@ -39,17 +40,13 @@ const TradeForm: React.FC = () => {
           className="border p-2 rounded flex-1"
           placeholder="Symbol, np. BTCUSDT"
           value={symbol}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSymbol(e.target.value.toUpperCase())
-          }
+          onChange={e => setSymbol(e.target.value.toUpperCase())}
           required
         />
         <select
           className="border p-2 rounded"
           value={action}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-            setAction(e.target.value as 'BUY' | 'SELL')
-          }
+          onChange={e => setAction(e.target.value as 'BUY' | 'SELL')}
         >
           <option value="BUY">BUY</option>
           <option value="SELL">SELL</option>
@@ -61,9 +58,7 @@ const TradeForm: React.FC = () => {
           type="number"
           min="0"
           step="any"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setQuantity(e.target.value)
-          }
+          onChange={e => setQuantity(e.target.value)}
           required
         />
         <button
