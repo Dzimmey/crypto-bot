@@ -24,13 +24,11 @@ const TradeForm: React.FC = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       const data = await res.json()
       setResult(`✅ Trade sent: ${data.symbol} ${data.action} (${data.quantity})`)
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to send trade')
+    } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        setError((err as any).message || 'Failed to send trade')
       }
-    }
+      
   }
 
   return (
