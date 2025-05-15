@@ -24,10 +24,9 @@ const TradeForm: React.FC = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       const data = await res.json()
       setResult(`✅ Trade sent: ${data.symbol} ${data.action} (${data.quantity})`)
-    } catch (err) {
-      // typowanie automatyczne, bez ": any"
+    } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message || 'Failed to send trade')
+        setError(err.message)
       } else {
         setError('Failed to send trade')
       }
