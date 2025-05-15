@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
 from executor import open_positions
@@ -10,17 +10,31 @@ app = FastAPI()
 # --- CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Na produkcji: ['https://crypto-bot-git-master-dzimmeys-projects.vercel.app']
+    allow_origins=["*"],  # docelowo domena Vercel!
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- API Key Security ---
 API_KEY = os.getenv("API_KEY")
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
-# --- Routes ---
+def verify_api_key(api_key: str = Depends(api_key_header)):
+    if api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API Key")
+
+@app.options("/positions")
+def options_positions():
+    """Wymusza 200 OK dla preflight, CORS middleware doda nagłówki."""
+    return Response(status_code=200)
+
+@app.get("/positions")
+def get_positions(api_key: str = Depends(api_key_header)):
+    if api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API Key")
+    return open_positions
+
+# Pozostałe endpointy identycznie
 @app.get("/")
 def root():
     return {"message": "Welcome to the Crypto Trading Bot API"}
@@ -29,21 +43,8 @@ def root():
 def get_status():
     return {"status": "bot online"}
 
-@app.api_route("/positions", methods=["GET", "OPTIONS"])
-def get_open_positions(request: Request, api_key: str = None):
-    if request.method == "OPTIONS":
-        # Preflight request (CORS) – nie wymaga autoryzacji
-        return Response(status_code=200)
-    # Sprawdzamy API Key tylko dla GET!
-    if api_key is None:
-        api_key = request.headers.get("X-API-Key")
-    if api_key != API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
-    return open_positions
-
 @app.get("/symbols")
-def get_symbols(request: Request):
-    api_key = request.headers.get("X-API-Key")
+def get_symbols(api_key: str = Depends(api_key_header)):
     if api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
     return get_top_symbols()
