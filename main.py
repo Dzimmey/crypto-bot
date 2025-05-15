@@ -9,7 +9,7 @@ app = FastAPI()
 # --- CORS Middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # lub wpisz konkretniejszy: ["https://crypto-bot-seven-psi.vercel.app"]
+    allow_origins=["*"],  # 🛡️ możesz wpisać konkretną domenę frontendową
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,7 +22,7 @@ def check_api_key(request: Request):
     if key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
-# --- Routes ---
+# --- Public routes ---
 @app.get("/")
 def root():
     return {"message": "Welcome to the Crypto Trading Bot API"}
@@ -31,6 +31,7 @@ def root():
 def get_status():
     return {"status": "bot online"}
 
+# --- Protected routes (manually check API key) ---
 @app.options("/positions")
 def options_positions():
     return Response(status_code=204)
