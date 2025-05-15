@@ -6,9 +6,7 @@ API_SECRET = os.getenv("API_SECRET")
 TRADE_QUANTITY_USD = float(os.getenv("TRADE_QUANTITY_USD", 100))
 
 client = Client(API_KEY, API_SECRET)
-
-# Lista otwartych pozycji
-open_positions = []
+open_positions = {}
 
 def execute_trade(symbol: str, action: str, quantity: float = None):
     if action not in ["BUY", "SELL"]:
@@ -36,4 +34,3 @@ def execute_trade(symbol: str, action: str, quantity: float = None):
             del open_positions[symbol]
     except Exception as e:
         print(f"[ERROR] Trade failed: {e}")
-
