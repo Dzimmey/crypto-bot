@@ -7,10 +7,10 @@ import os
 
 app = FastAPI()
 
-# --- CORS ---
+# --- CORS MIDDLEWARE ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # docelowo domena Vercel!
+    allow_origins=["*"],  # możesz ograniczyć np. do domeny Vercel
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,18 +23,21 @@ def verify_api_key(api_key: str = Depends(api_key_header)):
     if api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
-@app.options("/positions")
-def options_positions():
-    """Wymusza 200 OK dla preflight, CORS middleware doda nagłówki."""
-    return Response(status_code=200)
-
-@app.get("/positions")
-def get_positions(api_key: str = Depends(api_key_header)):
+@app.api_route("/positions", methods=["GET", "OPTIONS"])
+def positions(request: Request, api_key: str = Depends(api_key_header)):
+    # Jeśli to OPTIONS, ręcznie zwróć odpowiedź 200 z nagłówkami CORS
+    if request.method == "OPTIONS":
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET,OPTIONS",
+            "Access-Control-Allow-Headers": "X-API-Key,Content-Type",
+        }
+        return Response(status_code=200, headers=headers)
+    # Jeśli GET, autoryzacja
     if api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
     return open_positions
 
-# Pozostałe endpointy identycznie
 @app.get("/")
 def root():
     return {"message": "Welcome to the Crypto Trading Bot API"}
@@ -43,8 +46,15 @@ def root():
 def get_status():
     return {"status": "bot online"}
 
-@app.get("/symbols")
-def get_symbols(api_key: str = Depends(api_key_header)):
+@app.api_route("/symbols", methods=["GET", "OPTIONS"])
+def symbols(request: Request, api_key: str = Depends(api_key_header)):
+    if request.method == "OPTIONS":
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET,OPTIONS",
+            "Access-Control-Allow-Headers": "X-API-Key,Content-Type",
+        }
+        return Response(status_code=200, headers=headers)
     if api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
     return get_top_symbols()
