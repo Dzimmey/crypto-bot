@@ -1,8 +1,14 @@
 'use client'
 import React, { useState } from 'react'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isErrorWithMessage(e: unknown): e is { message: string } {
-  return typeof e === 'object' && e !== null && 'message' in e && typeof (e as any).message === 'string'
+  return (
+    typeof e === 'object' &&
+    e !== null &&
+    'message' in e &&
+    typeof (e as any).message === 'string'
+  )
 }
 
 const TradeForm: React.FC = () => {
