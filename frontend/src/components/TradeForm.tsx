@@ -1,16 +1,6 @@
 'use client'
 import React, { useState } from 'react'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isErrorWithMessage(e: unknown): e is { message: string } {
-  return (
-    typeof e === 'object' &&
-    e !== null &&
-    'message' in e &&
-    typeof (e as any).message === 'string'
-  )
-}
-
 const TradeForm: React.FC = () => {
   const [symbol, setSymbol] = useState('')
   const [action, setAction] = useState<'BUY' | 'SELL'>('BUY')
@@ -35,11 +25,7 @@ const TradeForm: React.FC = () => {
       const data = await res.json()
       setResult(`✅ Trade sent: ${data.symbol} ${data.action} (${data.quantity})`)
     } catch (err) {
-      if (isErrorWithMessage(err)) {
-        setError(err.message)
-      } else {
-        setError('Failed to send trade')
-      }
+      setError((err as Error)?.message || 'Failed to send trade')
     }
   }
 
