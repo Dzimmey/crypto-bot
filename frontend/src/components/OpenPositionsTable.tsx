@@ -12,27 +12,16 @@ const OpenPositionsTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL
-    const apiKey = process.env.NEXT_PUBLIC_API_KEY
-
-    console.log('[DEBUG] API_URL:', apiUrl)
-    console.log('[DEBUG] API_KEY:', apiKey)
-
-    fetch(`${apiUrl}/positions`, {
-      headers: {
-        'X-API-Key': apiKey || ''
-      }
-    })
+    // Fetch z lokalnego API (Next.js proxy na Vercel)
+    fetch('/api/positions')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
         return res.json()
       })
       .then((data) => {
-        console.log('[DEBUG] positions:', data)
         setPositions(data)
       })
       .catch((err) => {
-        console.error('[DEBUG] fetch error:', err)
         setError(err.message)
       })
   }, [])
