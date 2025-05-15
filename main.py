@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from executor import open_positions
@@ -7,10 +7,10 @@ import os
 
 app = FastAPI()
 
-# CORS configuration
+# --- CORS Middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # możesz wpisać konkretny adres frontendowy, np. ["https://crypto-bot-seven-psi.vercel.app"]
+    allow_origins=["*"],  # lub ["https://crypto-bot-seven-psi.vercel.app"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,7 +18,7 @@ app.add_middleware(
 
 # --- API Key Security ---
 API_KEY = os.getenv("API_KEY")
-api_key_header = APIKeyHeader(name="X-API-Key")
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 def verify_api_key(key: str = Depends(api_key_header)):
     if key != API_KEY:
@@ -33,10 +33,10 @@ def root():
 def get_status():
     return {"status": "bot online"}
 
-@app.get("/positions", dependencies=[Depends(verify_api_key)])
-def get_open_positions():
+@app.get("/positions")
+def get_open_positions(dep: None = Depends(verify_api_key)):
     return open_positions
 
-@app.get("/symbols", dependencies=[Depends(verify_api_key)])
-def get_symbols():
+@app.get("/symbols")
+def get_symbols(dep: None = Depends(verify_api_key)):
     return get_top_symbols()
