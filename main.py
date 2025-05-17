@@ -35,20 +35,24 @@ async def symbols(request: Request):
     verify_api_key(request)
     return get_top_symbols()
 
-@app.post("/trade")
+@app.api_route("/trade", methods=["POST", "OPTIONS"])
 async def trade(request: Request):
+    if request.method == "OPTIONS":
+        return Response(status_code=200)
     verify_api_key(request)
     body = await request.json()
     symbol = body.get("symbol")
     action = body.get("action")
     quantity = body.get("quantity")
-    if not symbol or not action or quantity is None:
+
+    if not symbol or not action or not quantity:
         raise HTTPException(status_code=400, detail="Missing data")
     try:
         execute_trade(symbol, action, float(quantity))
         return {"status": "success", "symbol": symbol, "action": action, "quantity": quantity}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Trade failed: {str(e)}")
+
 
 @app.get("/")
 def root():
