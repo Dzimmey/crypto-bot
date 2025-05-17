@@ -8,18 +8,17 @@ const TradeForm: React.FC = () => {
   const [result, setResult] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setResult(null)
     setError(null)
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trade`, {
+      const res = await fetch(`/api/proxy?path=trade`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || '',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ symbol, action, quantity: parseFloat(quantity) }),
+        body: JSON.stringify({ symbol, action, quantity }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       const data = await res.json()
