@@ -6,12 +6,13 @@ import os
 
 app = FastAPI()
 
+# CORS middleware – musi być PRZED endpointami!
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Zmień na domenę frontu na produkcji!
+    allow_origins=["*"],  # Na produkcji podaj domenę frontendu, np. ["https://crypto-bot-seven-psi.vercel.app"]
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # ["GET", "POST", "OPTIONS"]
+    allow_headers=["*"],  # ["Content-Type", "X-API-Key"]
 )
 
 API_KEY = os.getenv("API_KEY")
@@ -21,23 +22,29 @@ def verify_api_key(request: Request):
     if not api_key or api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
+# ----- /positions -----
 @app.api_route("/positions", methods=["GET", "OPTIONS"])
 async def positions(request: Request):
     if request.method == "OPTIONS":
+        print("OPTIONS /positions received")
         return Response(status_code=200)
     verify_api_key(request)
     return open_positions
 
+# ----- /symbols -----
 @app.api_route("/symbols", methods=["GET", "OPTIONS"])
 async def symbols(request: Request):
     if request.method == "OPTIONS":
+        print("OPTIONS /symbols received")
         return Response(status_code=200)
     verify_api_key(request)
     return get_top_symbols()
 
+# ----- /trade -----
 @app.api_route("/trade", methods=["POST", "OPTIONS"])
 async def trade(request: Request):
     if request.method == "OPTIONS":
+        print("OPTIONS /trade received")
         return Response(status_code=200)
     verify_api_key(request)
     body = await request.json()
@@ -53,7 +60,7 @@ async def trade(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Trade failed: {str(e)}")
 
-
+# ----- Root and Status -----
 @app.get("/")
 def root():
     return {"message": "Welcome to the Crypto Trading Bot API"}
