@@ -8,7 +8,7 @@ const TradeForm: React.FC = () => {
   const [result, setResult] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setResult(null)
     setError(null)
@@ -19,17 +19,14 @@ const TradeForm: React.FC = () => {
           'Content-Type': 'application/json',
           'X-API-Key': process.env.NEXT_PUBLIC_API_KEY || '',
         },
-        body: JSON.stringify({ symbol, action, quantity }),
+        body: JSON.stringify({ symbol, action, quantity: parseFloat(quantity) }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       const data = await res.json()
       setResult(`✅ Trade sent: ${data.symbol} ${data.action} (${data.quantity})`)
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to send trade')
-      }
+      if (err instanceof Error) setError(err.message)
+      else setError('Failed to send trade')
     }
   }
 

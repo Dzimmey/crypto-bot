@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from executor import open_positions, execute_trade
 from selector import get_top_symbols
@@ -8,7 +8,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # w produkcji najlepiej domenę frontend
+    allow_origins=["*"],  # Zmień na domenę frontu na produkcji!
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,8 +42,7 @@ async def trade(request: Request):
     symbol = body.get("symbol")
     action = body.get("action")
     quantity = body.get("quantity")
-
-    if not symbol or not action or not quantity:
+    if not symbol or not action or quantity is None:
         raise HTTPException(status_code=400, detail="Missing data")
     try:
         execute_trade(symbol, action, float(quantity))
