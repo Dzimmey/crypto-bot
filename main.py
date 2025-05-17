@@ -70,3 +70,18 @@ def root():
 @app.get("/status")
 def get_status():
     return {"status": "bot online"}
+
+from fastapi.responses import Response
+
+@app.options("/{full_path:path}")
+async def preflight_handler(full_path: str):
+    """
+    Global handler for all OPTIONS requests (CORS preflight).
+    """
+    headers = {
+        "Access-Control-Allow-Origin": "*",  # lub domena frontu
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
+    }
+    return Response(status_code=200, headers=headers)
+
