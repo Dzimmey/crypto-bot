@@ -3,6 +3,7 @@ from fastapi.security import APIKeyHeader
 from executor import open_positions, execute_trade
 from selector import get_top_symbols
 import os
+from fastapi.responses import Response
 
 app = FastAPI()
 
@@ -27,17 +28,9 @@ def get_status():
 def get_open_positions():
     return open_positions
 
-@app.options("/positions")
-async def options_positions():
-    return {"status": "ok"}
-
 @app.get("/symbols", dependencies=[Depends(verify_api_key)])
 def get_symbols():
     return get_top_symbols()
-
-@app.options("/symbols")
-async def options_symbols():
-    return {"status": "ok"}
 
 @app.post("/trade", dependencies=[Depends(verify_api_key)])
 async def trade(request: Request):
@@ -53,6 +46,11 @@ async def trade(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Trade failed: {str(e)}")
 
-@app.options("/trade")
-async def options_trade():
-    return {"status": "ok"}
+@app.options("/{rest_of_path:path}")
+async def global_options_handler(rest_of_path: str):
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
+    }
+    return Response(status_code=200, headers=headers)
