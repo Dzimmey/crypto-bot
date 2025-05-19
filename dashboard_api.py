@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import APIKeyHeader
-from executor import open_positions
+from executor import open_positions, execute_trade
 from selector import get_top_symbols
 import os
 
@@ -29,4 +29,22 @@ def get_open_positions():
 
 @app.get("/symbols", dependencies=[Depends(verify_api_key)])
 def get_symbols():
-    return get_top_symbols()
+    return get_top_symbols
+
+@app.post("/trade", dependencies=[Depends(verify_api_key)])
+async def trade(request: Request):
+    body = await request.json()
+    symbol = body.get("symbol")
+    action = body.get("action")
+    quantity = body.get("quantity")
+    if not symbol or not action or not quantity:
+        raise HTTPException(status_code=400, detail="Missing data")
+    try:
+        execute_trade(symbol, action, float(quantity))
+        return {"status": "success", "symbol": symbol, "action": action, "quantity": quantity}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Trade failed: {str(e)}")
+
+@app.options("/trade")
+async def options_trade():
+    return {"status": "ok"}
