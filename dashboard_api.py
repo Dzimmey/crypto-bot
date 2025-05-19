@@ -27,9 +27,17 @@ def get_status():
 def get_open_positions():
     return open_positions
 
+@app.options("/positions")
+async def options_positions():
+    return {"status": "ok"}
+
 @app.get("/symbols", dependencies=[Depends(verify_api_key)])
 def get_symbols():
-    return get_top_symbols
+    return get_top_symbols()
+
+@app.options("/symbols")
+async def options_symbols():
+    return {"status": "ok"}
 
 @app.post("/trade", dependencies=[Depends(verify_api_key)])
 async def trade(request: Request):
